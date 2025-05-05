@@ -1,0 +1,54 @@
+document.addEventListener("DOMContentLoaded", function () {
+    const addStudentButton = document.getElementById("add-student-button");
+    const form = document.getElementById("add-student-form");
+    const responseMessage = document.getElementById("response-message");
+
+    addStudentButton.addEventListener("click", function () {
+        // Get form data
+        const rollNumber = document.getElementById("rollNumber").value;
+        const name = document.getElementById("name").value;
+        const email = document.getElementById("email").value;
+        const department = document.getElementById("department").value;
+
+        // Validate form data
+        if (!rollNumber || !name || !email || !department) {
+            responseMessage.textContent = "All fields are required!";
+            responseMessage.style.color = "red";
+            return;
+        }
+
+        const studentData = {
+            rollNumber: rollNumber,
+            name: name,
+            email: email,
+            department: department
+        };
+
+        // Send POST request to the backend API to add the student
+        fetch("http://localhost:8080/api/students", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(studentData)
+        })
+        .then(response => {
+            if (response.ok) {
+                // Student added successfully
+                responseMessage.textContent = "Student added successfully!";
+                responseMessage.style.color = "green";
+                form.reset(); // Reset form fields after success
+            } else {
+                // Error occurred while adding student
+                responseMessage.textContent = "Failed to add student. Please try again.";
+                responseMessage.style.color = "red";
+            }
+        })
+        .catch(error => {
+            // Handle any network or other errors
+            console.error("Error:", error);
+            responseMessage.textContent = "An error occurred. Please try again.";
+            responseMessage.style.color = "red";
+        });
+    });
+});

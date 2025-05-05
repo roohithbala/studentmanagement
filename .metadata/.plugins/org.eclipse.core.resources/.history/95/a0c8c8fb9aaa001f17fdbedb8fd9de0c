@@ -1,0 +1,66 @@
+window.onload = function() {
+    fetch('http://localhost:8080/api/students')
+        .then(response => response.json())
+        .then(data => {
+            const studentList = document.getElementById('student-list').getElementsByTagName('tbody')[0];
+            data.forEach(student => {
+                const row = studentList.insertRow();
+
+                row.insertCell(0).textContent = student.rollNumber;
+                row.insertCell(1).textContent = student.name;
+                row.insertCell(2).textContent = student.email;
+                row.insertCell(3).textContent = student.department;
+
+                // Create the "Edit" button
+                const editButtonCell = row.insertCell(4);
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Edit';
+                editButton.classList.add('edit-button');
+                editButton.onclick = () => editStudent(student.rollNumber);
+                editButtonCell.appendChild(editButton);
+
+                // Create the "Delete" button
+                const deleteButtonCell = row.insertCell(5);
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.classList.add('delete-button');
+                deleteButton.onclick = () => deleteStudent(student.rollNumber);
+                deleteButtonCell.appendChild(deleteButton);
+            });
+        })
+        .catch(error => {
+            alert('Failed to load students. Please try again.');
+        });
+};
+
+// Edit student function
+function editStudent(rollNumber) {
+    // Here, you would typically fetch the student's details and populate a form for editing.
+    // For now, we'll just alert with the roll number
+    alert(`Editing student with Roll Number: ${rollNumber}`);
+    // Redirect to edit page (this would require an actual form for editing)
+    window.location.href = `edit-student.html?rollNumber=${rollNumber}`;
+}
+
+// Delete student function
+function deleteStudent(rollNumber) {
+    const confirmDelete = confirm(`Are you sure you want to delete student with Roll Number: ${rollNumber}?`);
+
+    if (confirmDelete) {
+        // Call the delete API
+        fetch(`http://localhost:8080/api/students/${rollNumber}`, {
+            method: 'DELETE',
+        })
+        .then(response => {
+            if (response.ok) {
+                alert(`Student with Roll Number ${rollNumber} deleted successfully.`);
+                location.reload(); // Reload the page to reflect changes
+            } else {
+                alert('Failed to delete student. Please try again.');
+            }
+        })
+        .catch(error => {
+            alert('Error deleting student. Please try again.');
+        });
+    }
+}

@@ -1,0 +1,170 @@
+// Function to Add a New Student
+const addStudent = async () => {
+    const rollNumber = document.querySelector('#rollNumber').value.trim();
+    const name = document.querySelector('#name').value.trim();
+    const email = document.querySelector('#email').value.trim();
+    const department = document.querySelector('#department').value.trim();
+
+    if (!rollNumber || !name || !email || !department) {
+        alert('All fields are required!');
+        return;
+    }
+
+    const student = { rollNumber, name, email, department };
+
+    try {
+        const response = await fetch('/students', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(student)
+        });
+
+        if (response.ok) {
+            alert('Student added successfully!');
+            document.querySelector('#add-student-form').reset();
+        } else {
+            alert('Failed to add student.');
+        }
+    } catch (error) {
+        console.error('Error adding student:', error);
+        alert('An error occurred. Please try again.');
+    }
+};
+
+// Function to Fetch and Display Students in the View Page
+const loadStudents = async () => {
+    const tableBody = document.querySelector('#students-table tbody');
+    if (!tableBody) return;
+
+    tableBody.innerHTML = ''; // Clear existing rows
+
+    try {
+        const response = await fetch('/students');
+        const students = await response.json();
+
+        if (students.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="4">No students found.</td></tr>';
+        } else {
+            students.forEach(student => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.rollNumber}</td>
+                    <td>${student.name}</td>
+                    <td>${student.email}</td>
+                    <td>${student.department}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+    } catch (error) {
+        console.error('Error loading students:', error);
+        tableBody.innerHTML = '<tr><td colspan="4">Failed to load students.</td></tr>';
+    }
+};
+
+// Function to Fetch and Populate Students for Management
+const loadStudentsForManagement = async () => {
+    const tableBody = document.querySelector('#manage-students-table tbody');
+    if (!tableBody) return;
+
+    tableBody.innerHTML = ''; // Clear existing rows
+
+    try {
+        const response = await fetch('/students');
+        const students = await response.json();
+
+        students.forEach(student => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${student.rollNumber}</td>
+                <td><input type="text" value="${student.name}" class="edit-name"></td>
+                <td><input type="email" value="${student.email}" class="edit-email"></td>
+                <td><input type="text" value="${student.department}" class="edit-department"></td>
+                <td>
+                    <button class="update-button" data-roll="${student.rollNumber}">Update</button>
+                    <button class="delete-button" data-roll="${student.rollNumber}">Delete</button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        addEventListeners();
+    } catch (error) {
+        console.error('Error loading students for management:', error);
+        tableBody.innerHTML = '<tr><td colspan="5">Failed to load students.</td></tr>';
+    }
+};
+
+// Function to Add Event Listeners for Update and Delete
+const addEventListeners = () => {
+    // Update Student
+    document.querySelectorAll('.update-button').forEach(button => {
+        button.addEventListener('click', async () => {
+            const rollNumber = button.getAttribute('data-roll');
+            const row = button.closest('tr');
+            const updatedStudent = {
+                rollNumber,
+                name: row.querySelector('.edit-name').value.trim(),
+                email: row.querySelector('.edit-email').value.trim(),
+                department: row.querySelector('.edit-department').value.trim()
+            };
+
+            try {
+                const response = await fetch(`/students/${rollNumber}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedStudent)
+                });
+
+                if (response.ok) {
+                    alert('Student updated successfully!');
+                } else {
+                    alert('Failed to update student.');
+                }
+            } catch (error) {
+                console.error('Error updating student:', error);
+                alert('An error occurred. Please try again.');
+            }
+        });
+    });
+
+    // Delete Student
+    document.querySelectorAll('.delete-button').forEach(button => {
+        button.addEventListener('click', async () => {
+            const rollNumber = button.getAttribute('data-roll');
+
+            try {
+                const response = await fetch(`/students/${rollNumber}`, { method: 'DELETE' });
+
+                if (response.ok) {
+                    alert('Student deleted successfully!');
+                    loadStudentsForManagement(); // Refresh the table
+                } else {
+                    alert('Failed to delete student.');
+                }
+            } catch (error) {
+                console.error('Error deleting student:', error);
+                alert('An error occurred. Please try again.');
+            }
+        });
+    });
+};
+
+// Page-Specific Event Listeners
+window.onload = () => {
+    // Add Student Page
+    const addForm = document.querySelector('#add-student-form');
+    if (addForm) {
+        document.querySelector('#add-student-button').addEventListener('click', addStudent);
+    }
+
+    // View Students Page
+    if (document.querySelector('#students-table')) {
+        loadStudents();
+    }
+
+    // Manage Students Page
+    if (document.querySelector('#manage-students-table')) {
+        loadStudentsForManagement();
+    }
+};

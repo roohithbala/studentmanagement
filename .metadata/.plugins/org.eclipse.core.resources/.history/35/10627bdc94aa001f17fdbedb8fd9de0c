@@ -1,0 +1,10 @@
+# Server settings
+server.port=8080
+# MongoDB configuration
+# MongoDB URI
+spring.data.mongodb.uri=mongodb://localhost:27017/studentdb1
+# Change this if your MongoDB is running on a different URI or port
+
+spring.data.mongodb.database=studentdb1  
+
+# Enable/Disable CORS if needed

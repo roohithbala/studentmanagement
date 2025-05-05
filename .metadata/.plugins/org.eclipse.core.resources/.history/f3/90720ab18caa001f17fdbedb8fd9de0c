@@ -1,0 +1,140 @@
+// Function to Add a New Student
+const addStudent = async () => {
+    const rollNumber = document.querySelector('#rollNumber').value.trim();
+    const name = document.querySelector('#name').value.trim();
+    const email = document.querySelector('#email').value.trim();
+    const department = document.querySelector('#department').value.trim();
+
+    if (!rollNumber || !name || !email || !department) {
+        alert('All fields are required!');
+        return;
+    }
+
+    const student = { rollNumber, name, email, department };
+
+    const response = await fetch('/students', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(student)
+    });
+
+    if (response.ok) {
+        alert('Student added successfully!');
+        document.querySelector('#add-student-form').reset();
+    } else {
+        alert('Failed to add student.');
+    }
+};
+
+// Function to Fetch and Display Students in View Page
+const loadStudents = async () => {
+    const tableBody = document.querySelector('#students-table tbody');
+    if (tableBody) {
+        tableBody.innerHTML = ''; // Clear existing rows
+        const response = await fetch('/students');
+        const students = await response.json();
+
+        if (students.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="4">No students found.</td></tr>';
+        } else {
+            students.forEach(student => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.rollNumber}</td>
+                    <td>${student.name}</td>
+                    <td>${student.email}</td>
+                    <td>${student.department}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+    }
+};
+
+// Function to Fetch and Populate Students for Management
+const loadStudentsForManagement = async () => {
+    const tableBody = document.querySelector('#manage-students-table tbody');
+    if (tableBody) {
+        tableBody.innerHTML = ''; // Clear existing rows
+        const response = await fetch('/students');
+        const students = await response.json();
+
+        students.forEach(student => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${student.rollNumber}</td>
+                <td><input type="text" value="${student.name}" class="edit-name"></td>
+                <td><input type="email" value="${student.email}" class="edit-email"></td>
+                <td><input type="text" value="${student.department}" class="edit-department"></td>
+                <td>
+                    <button class="update-button" data-roll="${student.rollNumber}">Update</button>
+                    <button class="delete-button" data-roll="${student.rollNumber}">Delete</button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        // Add event listeners to update and delete buttons
+        addEventListeners();
+    }
+};
+
+// Add Event Listeners for Update and Delete
+const addEventListeners = () => {
+    document.querySelectorAll('.update-button').forEach(button => {
+        button.addEventListener('click', async () => {
+            const rollNumber = button.getAttribute('data-roll');
+            const row = button.closest('tr');
+            const updatedStudent = {
+                rollNumber,
+                name: row.querySelector('.edit-name').value,
+                email: row.querySelector('.edit-email').value,
+                department: row.querySelector('.edit-department').value
+            };
+
+            const response = await fetch(`/students/${rollNumber}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updatedStudent)
+            });
+
+            if (response.ok) {
+                alert('Student updated successfully!');
+            } else {
+                alert('Failed to update student.');
+            }
+        });
+    });
+
+    document.querySelectorAll('.delete-button').forEach(button => {
+        button.addEventListener('click', async () => {
+            const rollNumber = button.getAttribute('data-roll');
+            const response = await fetch(`/students/${rollNumber}`, { method: 'DELETE' });
+
+            if (response.ok) {
+                alert('Student deleted successfully!');
+                loadStudentsForManagement(); // Refresh the table
+            } else {
+                alert('Failed to delete student.');
+            }
+        });
+    });
+};
+
+// Event Listeners for Page-Specific Functions
+window.onload = () => {
+    // Add Student Page
+    if (document.querySelector('#add-student-form')) {
+        document.querySelector('#add-student-button').addEventListener('click', addStudent);
+    }
+
+    // View Students Page
+    if (document.querySelector('#students-table')) {
+        loadStudents();
+    }
+
+    // Manage Students Page
+    if (document.querySelector('#manage-students-table')) {
+        loadStudentsForManagement();
+    }
+};

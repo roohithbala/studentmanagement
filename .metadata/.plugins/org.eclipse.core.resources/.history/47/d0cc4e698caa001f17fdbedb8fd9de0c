@@ -1,0 +1,9 @@
+spring.application.name=demo
+
+# Server Port
+server.port=8080
+
+# Database Configuration (MongoDB)
+spring.data.mongodb.database=student_managementsahana
+spring.data.mongodb.host=localhost
+spring.data.mongodb.port=27017

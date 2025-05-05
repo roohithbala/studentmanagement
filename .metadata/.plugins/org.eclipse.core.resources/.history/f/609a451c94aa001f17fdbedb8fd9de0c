@@ -1,0 +1,30 @@
+# Server settings
+server.port=8080
+# MongoDB configuration
+# MongoDB URI
+spring.data.mongodb.uri=mongodb://localhost:27017/studentdb1
+# Change this if your MongoDB is running on a different URI or port
+
+spring.data.mongodb.database=studentdb1  
+
+# Enable/Disable CORS if needed
+# If you have CORS issues, make sure to configure it in your WebConfig class or use @CrossOrigin in your controllers
+
+# Logging level (you can change logging level based on your needs)
+logging.level.org.springframework.web=DEBUG
+logging.level.com.example=DEBUG
+
+# H2 Database (if using an in-memory database for testing, you can uncomment this section for development)
+# spring.datasource.url=jdbc:h2:mem:testdb
+# spring.datasource.driverClassName=org.h2.Driver
+# spring.datasource.username=sa
+# spring.datasource.password=password
+# spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+
+# To run your application with an embedded MongoDB for development, add:
+# spring.mongodb.embedded.version=4.0.0
+# spring.mongodb.embedded.host=localhost
+# spring.mongodb.embedded.port=27017
+
+# Customizing the MongoDB Repository behavior
+spring.data.mongodb.auto-index-creation=true
