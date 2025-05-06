@@ -1,4 +1,4 @@
-```markdown
+
 # Student Management System
 
 This is a Spring Boot-based web application for managing student records. It provides functionalities to add, view, update, and delete student information. The application uses MongoDB as the database and includes a simple frontend built with HTML, CSS, and JavaScript.
@@ -13,7 +13,7 @@ This is a Spring Boot-based web application for managing student records. It pro
 
 ## Project Structure
 
-```
+```bash
 demo/
 ├── src/
 │   ├── main/
